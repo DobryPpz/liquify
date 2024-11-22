@@ -15,6 +15,7 @@ class TargetMix(Fluid):
         super().__init__(volume)
         self.taste_set = set()
         self.fluid_list = []
+        self.total_volume = 0
         self.error_margin = error_margin
         self.target_concentration = target_concentration
 
