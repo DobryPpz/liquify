@@ -13,19 +13,14 @@ class TargetMix(Fluid):
                  error_margin: float = 0.1,
                  target_concentration: int | float = 0):
         super().__init__(volume)
-        self.taste_list = []
-        self.base_list = []
+        self.taste_set = set()
+        self.fluid_list = []
         self.error_margin = error_margin
         self.target_concentration = target_concentration
 
-    def add_taste(self, taste: Fluid):
-        if type(taste) is not Fluid:
-            raise Exception('Wrong type of taste!')
-        self.taste_list.append(taste)
-        return self
-
-    def add_base(self, base: Fluid):
-        if type(base) is not Fluid:
-            raise Exception('Wrong type of base!')
-        self.base_list.append(base)
+    def add_fluid(self, fluid: Fluid):
+        if type(fluid) is not Fluid:
+            raise Exception('Wrong type of fluid!')
+        self.taste_set.add(fluid.name)
+        self.fluid_list.append(fluid)
         return self
