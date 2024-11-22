@@ -1,4 +1,5 @@
 import argparse
+from functools import cache
 
 
 class Fluid:
