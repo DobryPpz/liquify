@@ -9,10 +9,10 @@ class Fluid:
 
 
 class TargetMix(Fluid):
-    def __init__(self, volume: int | float = 0,
+    def __init__(self, target_volume: int | float = 0,
                  error_margin: float = 0.1,
                  target_concentration: int | float = 0):
-        super().__init__(volume)
+        super().__init__(target_volume)
         self.taste_set = set()
         self.fluid_list = []
         self.total_volume = 0
@@ -24,4 +24,5 @@ class TargetMix(Fluid):
             raise Exception('Wrong type of fluid!')
         self.taste_set.add(fluid.name)
         self.fluid_list.append(fluid)
+        self.total_volume += fluid.volume
         return self
