@@ -21,6 +21,7 @@ class TargetMix(Fluid):
         self.total_volume = 0
         self.error_margin = error_margin
         self.target_concentration = target_concentration
+        self.step_list = []
 
     def add_fluid(self, fluid: Fluid):
         if type(fluid) is not Fluid:
