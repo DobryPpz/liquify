@@ -5,10 +5,12 @@ from functools import cache
 class Fluid:
     def __init__(self, volume: int | float = 0,
                  nicotine_concentration: int | float = 0,
-                 name: str = 'tasteless'):
+                 name: str = 'fluid',
+                 taste: str = 'tasteless'):
         self.volume = volume
         self.nicotine_concentration = nicotine_concentration
         self.name = name
+        self.taste = taste
 
 
 class TargetMix(Fluid):
@@ -26,7 +28,7 @@ class TargetMix(Fluid):
     def add_fluid(self, fluid: Fluid):
         if type(fluid) is not Fluid:
             raise Exception('Wrong type of fluid!')
-        self.taste_set.add(fluid.name)
+        self.taste_set.add(fluid.taste)
         self.fluid_list.append(fluid)
         self.total_volume += fluid.volume
         return self
