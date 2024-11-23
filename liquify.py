@@ -3,7 +3,9 @@ from functools import cache
 
 
 class Fluid:
-    def __init__(self, volume: int | float = 0, nicotine_concentration: int | float = 0, name: str = 'tasteless'):
+    def __init__(self, volume: int | float = 0,
+                 nicotine_concentration: int | float = 0,
+                 name: str = 'tasteless'):
         self.volume = volume
         self.nicotine_concentration = nicotine_concentration
         self.name = name
