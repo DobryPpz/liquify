@@ -101,15 +101,17 @@ class TargetMix(Fluid):
         return step_list
 
 
-soczek = Fluid(50, 4, 'dark labs green', 'green tea')
-herbata = Fluid(50, 4, 'dark labs oranhe', 'orange')
-pizza = Fluid(50, 2, 'dark labs pizza', 'pizza')
-baza = Fluid(100, 18, 'nicotex')
-cat = Fluid(50, 0, 'dark labs cat', 'cat')
-target = TargetMix(150, 0.1, 10, 0.1)
+soczek = Fluid(5, 4, 'dark labs green', 'green tea')
+herbata = Fluid(5, 4, 'dark labs oranhe', 'orange')
+pizza = Fluid(5, 2, 'dark labs pizza', 'pizza')
+baza = Fluid(10, 18, 'nicotex')
+cat = Fluid(5, 0, 'dark labs cat', 'cat')
+dog = Fluid(20,3,'dark labs dog', 'dog poo')
+target = TargetMix(15, 0.1, 12, 0.1)
 target.add_fluid(soczek)
 target.add_fluid(baza)
 target.add_fluid(herbata)
 target.add_fluid(pizza)
 target.add_fluid(cat)
+target.add_fluid(dog)
 print(target.get_mix())
