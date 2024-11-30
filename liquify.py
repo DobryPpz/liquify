@@ -1,7 +1,3 @@
-import argparse
-from functools import cache
-
-
 class Fluid:
     def __init__(self, volume: int | float = 0,
                  nicotine_concentration: int | float = 0,
@@ -13,7 +9,7 @@ class Fluid:
         self.taste = taste
 
     def __str__(self):
-        return f'{self.volume}ml;{self.nicotine_concentration}(mg/ml);{self.taste}'
+        return f'{self.name};{self.volume}ml;{self.nicotine_concentration}(mg/ml);{self.taste}'
 
 
 class TargetMix(Fluid):
@@ -55,7 +51,7 @@ class TargetMix(Fluid):
                 return False
         curr_fluid = self.fluid_list[index]
         curr_conc = curr_fluid.nicotine_concentration
-        choose_v = curr_fluid.volume
+        choose_v = min(self.volume-total_v, curr_fluid.volume)
         prev_conc = total_conc
         while choose_v >= self.milliliter_step:
             total_conc = (prev_conc*total_v+curr_conc *
@@ -83,12 +79,12 @@ class TargetMix(Fluid):
         return step_list
 
 
-soczek = Fluid(5, 0, 'dark labs green', 'green tea')
-herbata = Fluid(5, 0, 'dark labs oranhe', 'orange')
-pizza = Fluid(5, 0, 'dark labs pizza', 'pizza')
-baza = Fluid(10, 18, 'nicotex')
-cat = Fluid(5, 0, 'dark labs cat', 'cat')
-target = TargetMix(15, 0.1, 12, 0.1)
+soczek = Fluid(50, 2, 'dark labs green', 'green tea')
+herbata = Fluid(50, 4, 'dark labs oranhe', 'orange')
+pizza = Fluid(50, 0, 'dark labs pizza', 'pizza')
+baza = Fluid(100, 18, 'nicotex')
+cat = Fluid(50, 0, 'dark labs cat', 'cat')
+target = TargetMix(150, 0.1, 10, 0.1)
 target.add_fluid(soczek)
 target.add_fluid(baza)
 target.add_fluid(herbata)
