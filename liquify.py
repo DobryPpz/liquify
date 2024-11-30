@@ -32,6 +32,9 @@ class TargetMix(Fluid):
         self.fluid_list.append(fluid)
         self.total_volume += fluid.volume
         return self
+    # -1 -> too small concentration
+    # 0 -> exactly right concentration
+    # 1 -> too big concentration
 
     def calculate(self, index: int,
                   total_conc: float,
@@ -41,30 +44,49 @@ class TargetMix(Fluid):
         key = (index, format(total_conc, '.3f'), format(total_v, '.3f'))
         if key in dp:
             return dp[key]
-        if index >= len(self.fluid_list):
+        if index >= len(self.fluid_list) or total_v >= self.volume:
             if abs(total_conc-self.target_concentration) <= self.error_margin \
                     and abs(total_v-self.volume) <= self.error_margin:
-                dp[key] = True
-                return True
+                dp[key] = 0
+                return 0
             else:
-                dp[key] = False
-                return False
+                if total_conc > self.target_concentration:
+                    dp[key] = 1
+                    return 1
+                else:
+                    dp[key] = -1
+                    return -1
         curr_fluid = self.fluid_list[index]
         curr_conc = curr_fluid.nicotine_concentration
-        choose_v = min(self.volume-total_v, curr_fluid.volume)
+        v_r = min(self.volume-total_v, curr_fluid.volume)+self.milliliter_step
+        v_l = self.milliliter_step
         prev_conc = total_conc
-        while choose_v >= self.milliliter_step:
-            total_conc = (prev_conc*total_v+curr_conc *
+        while v_l <= v_r:
+            choose_v = (v_l+v_r)/2
+            total_conc = (prev_conc*total_v + curr_conc *
                           choose_v)/(total_v+choose_v)
             ret = self.calculate(index+1, total_conc,
                                  total_v+choose_v, ingredients, dp)
-            if ret:
+            if ret == 0:
                 ingredients.append((index, choose_v))
-                dp[key] = True
-                return True
-            choose_v -= self.milliliter_step
-        dp[key] = False
-        return False
+                dp[key] = 0
+                return 0
+            elif ret == 1:  # concentration too large
+                if curr_conc > self.target_concentration:
+                    v_r = choose_v - self.milliliter_step
+                else:
+                    v_l = choose_v + self.milliliter_step
+            elif ret == -1:  # concentration too small
+                if curr_conc > self.target_concentration:
+                    v_l = choose_v + self.milliliter_step
+                else:
+                    v_r = choose_v - self.milliliter_step
+        if curr_conc > self.target_concentration:
+            dp[key] = 1
+            return 1
+        else:
+            dp[key] = -1
+            return -1
 
     def get_mix(self):
         ingredients = []
@@ -79,9 +101,9 @@ class TargetMix(Fluid):
         return step_list
 
 
-soczek = Fluid(50, 2, 'dark labs green', 'green tea')
+soczek = Fluid(50, 4, 'dark labs green', 'green tea')
 herbata = Fluid(50, 4, 'dark labs oranhe', 'orange')
-pizza = Fluid(50, 0, 'dark labs pizza', 'pizza')
+pizza = Fluid(50, 2, 'dark labs pizza', 'pizza')
 baza = Fluid(100, 18, 'nicotex')
 cat = Fluid(50, 0, 'dark labs cat', 'cat')
 target = TargetMix(150, 0.1, 10, 0.1)
