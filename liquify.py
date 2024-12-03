@@ -32,10 +32,10 @@ class TargetMix(Fluid):
         self.fluid_list.append(fluid)
         self.total_volume += fluid.volume
         return self
+
     # -1 -> too small concentration
     # 0 -> exactly right concentration
     # 1 -> too big concentration
-
     def calculate(self, index: int,
                   total_conc: float,
                   total_v: float,
@@ -91,6 +91,8 @@ class TargetMix(Fluid):
     def get_mix(self):
         ingredients = []
         dp = {}
+        self.fluid_list.sort(
+            reverse=True, key=lambda fluid: fluid.nicotine_concentration*fluid.volume)
         self.calculate(0, 0, 0, ingredients, dp)
         if len(ingredients) == 0:
             return ['Such mix is impossible.']
@@ -99,19 +101,3 @@ class TargetMix(Fluid):
             fluid_name = self.fluid_list[fluid_index].name
             step_list.append(f'Add {amount} ml of {fluid_name}.')
         return step_list
-
-
-soczek = Fluid(5, 4, 'dark labs green', 'green tea')
-herbata = Fluid(5, 4, 'dark labs oranhe', 'orange')
-pizza = Fluid(5, 2, 'dark labs pizza', 'pizza')
-baza = Fluid(10, 18, 'nicotex')
-cat = Fluid(5, 0, 'dark labs cat', 'cat')
-dog = Fluid(20,3,'dark labs dog', 'dog poo')
-target = TargetMix(15, 0.1, 12, 0.1)
-target.add_fluid(soczek)
-target.add_fluid(baza)
-target.add_fluid(herbata)
-target.add_fluid(pizza)
-target.add_fluid(cat)
-target.add_fluid(dog)
-print(target.get_mix())

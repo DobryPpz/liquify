@@ -1,0 +1,23 @@
+from liquify import *
+
+grtea = Fluid(50, 4, 'lq green', 'green tea')
+orange = Fluid(50, 4, 'lq naranja', 'orange')
+pizza = Fluid(58, 2, 'lq pizza', 'pizza')
+nicotine = Fluid(100, 18, 'nico-base')
+milk = Fluid(5, 0, 'lq milk', 'milk')
+tobacco = Fluid(20, 3, 'lq tobaq', 'tobacco')
+target = TargetMix(50, 0.1, 14, 0.1)
+target.add_fluid(nicotine)
+target.add_fluid(orange)
+target.add_fluid(pizza)
+target.add_fluid(grtea)
+target.add_fluid(milk)
+target.add_fluid(tobacco)
+print(target.get_mix())
+
+berry = Fluid(5,0,'lq berry','berry')
+salt = Fluid(10,18,'nic salt')
+target_2 = TargetMix(15,0.1,12,0.1)
+target_2.add_fluid(berry)
+target_2.add_fluid(salt)
+print(target_2.get_mix())
