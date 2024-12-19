@@ -15,6 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import random
+random.seed()
 
 
 class Fluid:
@@ -52,67 +54,79 @@ class TargetMix(Fluid):
         self.total_volume += fluid.volume
         return self
 
-    # -1 -> too small concentration
-    # 0 -> exactly right concentration
-    # 1 -> too big concentration
-    def calculate(self, index: int,
-                  total_conc: float,
-                  total_v: float,
-                  ingredients: list,
-                  dp: dict):
-        key = (index, format(total_conc, '.3f'), format(total_v, '.3f'))
-        if key in dp:
-            return dp[key]
-        if index >= len(self.fluid_list) or total_v >= self.volume:
-            if abs(total_conc-self.target_concentration) <= self.error_margin \
-                    and abs(total_v-self.volume) <= self.error_margin:
-                dp[key] = 0
-                return 0
-            else:
-                if total_conc > self.target_concentration:
-                    dp[key] = 1
-                    return 1
-                else:
-                    dp[key] = -1
-                    return -1
-        curr_fluid = self.fluid_list[index]
-        curr_conc = curr_fluid.nicotine_concentration
-        v_r = min(self.volume-total_v, curr_fluid.volume)+self.milliliter_step
-        v_l = self.milliliter_step
-        prev_conc = total_conc
-        while v_l <= v_r:
-            choose_v = (v_l+v_r)/2
-            total_conc = (prev_conc*total_v + curr_conc *
-                          choose_v)/(total_v+choose_v)
-            ret = self.calculate(index+1, total_conc,
-                                 total_v+choose_v, ingredients, dp)
-            if ret == 0:
-                ingredients.append((index, choose_v))
-                dp[key] = 0
-                return 0
-            elif ret == 1:  # concentration too large
-                if curr_conc > self.target_concentration:
-                    v_r = choose_v - self.milliliter_step
-                else:
-                    v_l = choose_v + self.milliliter_step
-            elif ret == -1:  # concentration too small
-                if curr_conc > self.target_concentration:
-                    v_l = choose_v + self.milliliter_step
-                else:
-                    v_r = choose_v - self.milliliter_step
-        if curr_conc > self.target_concentration:
-            dp[key] = 1
-            return 1
+    def evaluate_mix(self, mix: list[tuple]):
+        total_amount = 0
+        total_nicotine = 0
+        wrongness = 0
+        for fluid_index, amount in mix:
+            total_amount += amount
+            current_fluid = self.fluid_list[fluid_index]
+            total_nicotine += current_fluid.nicotine_concentration*amount
+            if amount > current_fluid.volume or amount <= 0:
+                wrongness += 1
+        return wrongness + abs(self.volume-total_amount) + \
+            abs(self.target_concentration-(total_nicotine/total_amount))
+
+    def generate_mix(self):
+        mix = []
+        for i in range(len(self.fluid_list)):
+            current_fluid = self.fluid_list[i]
+            min_volume_step = 1
+            max_volume_step = int(current_fluid.volume/self.milliliter_step)
+            step = random.randint(min_volume_step, max_volume_step)
+            volume = step*self.milliliter_step
+            mix.append((i, volume))
+        return mix
+
+    def random_crossover(self, parent_a, parent_b):
+        crosspoint = random.randint(1, len(self.fluid_list)-1)
+        child_a = [*parent_a[:crosspoint], *parent_b[crosspoint:]]
+        child_b = [*parent_b[:crosspoint], *parent_a[crosspoint:]]
+        return child_a, child_b
+
+    def mutate(self, mix: list[tuple]):
+        mutate_point = random.randrange(0, len(self.fluid_list))
+        index, amount = mix[mutate_point]
+        if random.random() > 0.5:
+            amount += self.milliliter_step
         else:
-            dp[key] = -1
-            return -1
+            amount -= self.milliliter_step
+        mix[mutate_point] = (index, amount)
+
+    def calculate(self):
+        P = 20*len(self.fluid_list)
+        population = []
+        offspring = []
+        for _ in range(P):
+            population.append(self.generate_mix())
+        best_fitness = float('inf')
+        best_solution = None
+        non_improve_counter = 0
+        while best_fitness > 0 and non_improve_counter < 20:
+            population.sort(key=lambda pop: self.evaluate_mix(pop))
+            population = population[:len(population)//2]
+            while len(offspring) < P:
+                parent_a, parent_b = random.choices(population, k=2)
+                offspring.extend(self.random_crossover(parent_a, parent_b))
+            has_improved = False
+            for child in offspring:
+                fitness = self.evaluate_mix(child)
+                if fitness < best_fitness:
+                    has_improved = True
+                    best_fitness = fitness
+                    best_solution = child[:]
+            for child in offspring:
+                self.mutate(child)
+            population = offspring
+            offspring = []
+            if has_improved:
+                non_improve_counter = 0
+            else:
+                non_improve_counter += 1
+        return best_solution
 
     def get_mix(self):
-        ingredients = []
-        dp = {}
-        self.fluid_list.sort(
-            reverse=True, key=lambda fluid: fluid.nicotine_concentration*fluid.volume)
-        self.calculate(0, 0, 0, ingredients, dp)
+        ingredients = self.calculate()
         if len(ingredients) == 0:
             return ['Such mix is impossible.']
         step_list = []
