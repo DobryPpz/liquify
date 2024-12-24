@@ -123,7 +123,7 @@ class TargetMix(Fluid):
                 non_improve_counter = 0
             else:
                 non_improve_counter += 1
-        if best_fitness >= self.error_margin:
+        if best_fitness >= 1:
             return []
         return best_solution
 
