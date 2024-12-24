@@ -123,12 +123,14 @@ class TargetMix(Fluid):
                 non_improve_counter = 0
             else:
                 non_improve_counter += 1
+        if best_fitness >= self.error_margin:
+            return []
         return best_solution
 
     def get_mix(self):
         ingredients = self.calculate()
         if len(ingredients) == 0:
-            return ['Such mix is impossible.']
+            return ['We couldn\'t find the desired mix.']
         step_list = []
         for fluid_index, amount in ingredients:
             fluid_name = self.fluid_list[fluid_index].name
