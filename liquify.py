@@ -128,7 +128,7 @@ class TargetMix(Fluid):
     def get_mix(self):
         ingredients = self.calculate()
         if len(ingredients) == 0:
-            return ['Such mix is impossible.']
+            return ['We couldn\'t find the desired mix.']
         step_list = []
         for fluid_index, amount in ingredients:
             fluid_name = self.fluid_list[fluid_index].name
