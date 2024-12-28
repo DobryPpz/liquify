@@ -119,6 +119,7 @@ class TargetMix(Fluid):
                 self.mutate(child)
             population = offspring
             offspring = []
+            population[0] = best_solution[:]
             if has_improved:
                 non_improve_counter = 0
             else:
