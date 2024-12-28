@@ -116,7 +116,8 @@ class TargetMix(Fluid):
                     best_fitness = fitness
                     best_solution = child[:]
             for child in offspring:
-                self.mutate(child)
+                if random.random() > 0.5:
+                    self.mutate(child)
             population = offspring
             offspring = []
             population[0] = best_solution[:]
